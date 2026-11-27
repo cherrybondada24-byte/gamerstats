@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>GamerStats</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#07090c;--card:#12181f;--c2:#0c1116;--line:#1f2a35;--tx:#e8eef5;--mu:#8091a2;--g:#39ff88;--b:#2fb5ff;--r:#ff4d6d;color-scheme:dark;box-sizing:border-box;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+:root[data-theme=light]{--bg:#edf1f5;--card:#fff;--c2:#f3f6f9;--line:#d3dce5;--tx:#0d1620;--mu:#56677a;--g:#00a85a;--b:#0a7fd1;--r:#d6264a;color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(800px 380px at 85% -8%,color-mix(in srgb,var(--b) 16%,transparent),transparent),var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px;max-width:900px;margin:auto}
+.logo{font:900 24px/1 system-ui,sans-serif;font-style:italic;letter-spacing:1px}.logo b{color:var(--g);text-shadow:0 0 16px var(--g)}
+main{max-width:900px;margin:auto;padding:0 14px 100px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav button{flex:1;max-width:120px;background:none;border:0;color:var(--mu);font:600 10px system-ui;cursor:pointer;transition:.2s}nav button.on{color:var(--g);text-shadow:0 0 10px var(--g)}nav .i{display:block;font-size:19px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}.an .card{animation:in .4s both}
+h2{font-size:14px;color:var(--mu);margin:0 0 10px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}@media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
+.stat{background:var(--c2);border:1px solid var(--line);border-radius:12px;padding:12px;transition:.2s}.stat:hover{border-color:var(--g);box-shadow:0 0 18px color-mix(in srgb,var(--g) 25%,transparent)}
+.stat small{color:var(--mu);font-size:12px}.stat b{display:block;font-size:28px;font-weight:800;color:var(--g)}.stat:nth-child(even) b{color:var(--b)}
+.btn{background:linear-gradient(90deg,var(--g),var(--b));color:#021008;border:0;border-radius:10px;padding:11px 16px;font:700 14px system-ui;cursor:pointer;transition:.2s}.btn:hover{filter:brightness(1.12)}.btn.o{background:none;border:1px solid var(--line);color:var(--tx)}
+.seg{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}.seg button{background:var(--card);border:1px solid var(--line);color:var(--mu);border-radius:20px;padding:7px 14px;font:600 13px system-ui;cursor:pointer;white-space:nowrap;transition:.2s}.seg button.on{color:#021008;background:var(--g);border-color:var(--g)}
+label{display:block;font-size:12px;color:var(--mu);margin:0 0 4px}
+input,select,textarea{width:100%;background:var(--c2);color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;transition:.2s}input:focus,select:focus,textarea:focus,button:focus-visible{outline:0;border-color:var(--b);box-shadow:0 0 0 3px color-mix(in srgb,var(--b) 30%,transparent)}
+input[type=checkbox]{width:auto;accent-color:var(--g)}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:10px}.f>.w{grid-column:1/-1}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}.row small,.mu{color:var(--mu)}.blk{display:block}
+.p{padding:2px 9px;border-radius:12px;font:700 11px system-ui}.W{background:color-mix(in srgb,var(--g) 18%,transparent);color:var(--g)}.L{background:color-mix(in srgb,var(--r) 18%,transparent);color:var(--r)}
+.cv{height:210px;position:relative}
+.bars{display:flex;align-items:flex-end;gap:5px;height:90px}.bars i{flex:1;border-radius:4px 4px 0 0;min-height:4px;transform-origin:bottom;animation:gr .7s both}
+.err{color:var(--r);font-size:13px}
+.bd{text-align:center;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--c2);font-size:12px}.bd.off{opacity:.35;filter:grayscale(1)}.bd s{display:block;font-size:26px;text-decoration:none}
+.prog{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0 12px}.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--g),var(--b));transition:width .8s}
+.av{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:22px;color:#021008;background:linear-gradient(135deg,var(--g),var(--b));box-shadow:0 0 22px color-mix(in srgb,var(--g) 40%,transparent)}
+#ts{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--g);color:#021008;padding:9px 16px;border-radius:20px;font-weight:700;opacity:0;transition:.3s;pointer-events:none;z-index:9}#ts.on{opacity:1;transform:translate(-50%,0)}
+@keyframes in{from{opacity:0;transform:translateY(10px)}}@keyframes gr{from{transform:scaleY(0)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<header><div class="logo">GAMER<b>STATS</b></div><button class="btn o" style="padding:6px 12px" onclick="theme()">◐ Theme</button></header>
+<main id="ap"></main><nav id="nv"></nav><div id="ts"></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],V={},P={},FF={},K="gamerstats.v1";
+const uid=()=>Math.random().toString(36).slice(2,9),esc=s=>String(s).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+const ds=o=>{const d=new Date();d.setDate(d.getDate()-o);return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)},TD=()=>ds(0);
+const sum=(a,f)=>a.reduce((x,y)=>x+f(y),0),f2=x=>x.toFixed(2),f0=Math.round,C=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const sc=(kd,hp,wr,ad)=>Math.round(Math.min(kd/2,1)*35+Math.min(hp/50,1)*25+Math.min(wr/60,1)*25+Math.min(ad/1500,1)*15);
+function agg(a){const n=a.length,k=sum(a,x=>x.kills),d=sum(a,x=>x.deaths),h=sum(a,x=>x.hs),w=a.filter(x=>x.result=="Win").length,dm=sum(a,x=>x.dmg),kd=k/Math.max(d,1),hp=k?h/k*100:0,wr=n?w/n*100:0,ad=n?dm/n:0;return{n,k,d,h,w,l:n-w,kd,hp,wr,ak:n?k/n:0,ad,score:n?sc(kd,hp,wr,ad):0}}
+function sample(){let s=7;const r=()=>(s=s*16807%2147483647)/2147483647,m=[],G=[["Free Fire","Ranked"],["Free Fire","Clash Squad"],["Valorant","Competitive"],["COD Mobile","Multiplayer"],["Apex Legends","Ranked"]];
+for(let i=44;i>=0;i--){const n=r()<.3?0:r()<.5?1:2;for(let j=0;j<n;j++){const g=G[Math.floor(r()*G.length)],p=1-i/90,k=Math.round(2+r()*7+p*3),d=Math.max(0,Math.round(3+r()*5-p*1.2));m.push({id:uid(),game:g[0],type:g[1],kills:k,deaths:d,hs:Math.min(k,Math.round(k*(.2+p*.15+r()*.15))),dmg:Math.round(k*130+r()*400),result:r()<.38+p*.2?"Win":"Loss",date:ds(i)})}}return m}
+const tr=b=>{const a=[];for(let i=12;i>=0;i-=2)a.push({id:uid(),date:ds(i),n:40,h:b+Math.round((12-i)*1.2),note:""});return a};
+const fresh=(d,p)=>({p:p||{name:"Player One",tag:"#0001",fav:"Free Fire"},m:d?sample():[],one:d?tr(14):[],drag:d?tr(10):[],sens:{},hud:{},goal:60,ch:{}});
+let S;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+S=S&&Array.isArray(S.m)?Object.assign(fresh(0),S):fresh(1);
+try{const t=localStorage.getItem("gs.theme");t&&(document.documentElement.dataset.theme=t)}catch(e){}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){toast("Storage unavailable: data will not persist")}};
+function theme(){const r=document.documentElement,t=r.dataset.theme=="light"?"dark":"light";r.dataset.theme=t;try{localStorage.setItem("gs.theme",t)}catch(e){}draw()}
+function toast(t){const e=$("#ts");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),2600)}
+function ar(b,f){if(!b.dataset.a){b.dataset.a=1;b.dataset.t=b.textContent;b.textContent="Tap again";setTimeout(()=>{b.dataset.a="";b.textContent=b.dataset.t},2500);return}f()}
+const del=(k,id,b)=>ar(b,()=>{S[k]=S[k].filter(x=>x.id!=id);save();draw()});
+const ms=()=>[...S.m].sort((a,b)=>b.date<a.date?-1:b.date>a.date?1:0);
+const rank=s=>s<40?"Bronze":s<55?"Silver":s<68?"Gold":s<80?"Platinum":s<90?"Diamond":"Mythic";
+const st=(l,v,d,u)=>`<div class="stat"><small>${l}</small><b data-v="${v}" data-d="${d||0}" data-u="${u||""}">0</b></div>`;
+const kd1=x=>x.kills/Math.max(x.deaths,1);
+const mrow=(x,d)=>`<div class="row"><div><b>${esc(x.game)}</b> <small>${esc(x.type)}</small><br><small>${x.date} · ${x.kills}K ${x.deaths}D · ${x.hs} HS · ${x.dmg} dmg · K/D ${f2(kd1(x))}</small></div><div><span class="p ${x.result[0]}">${x.result}</span>${d?` <button class="btn o" style="padding:4px 9px" onclick="del('m','${x.id}',this)">✕</button>`:""}</div></div>`;
+function cu(){$$("[data-v]").forEach(e=>{const t=+e.dataset.v,dc=+e.dataset.d,u=e.dataset.u,t0=performance.now();(function f(n){const p=Math.min((n-t0)/700,1);e.textContent=(t*(1-Math.pow(1-p,3))).toFixed(dc)+u;p<1&&requestAnimationFrame(f)})(t0)})}
+let CH=[];
+function mk(id,type,lb,sets,o={}){const mu=C("--mu"),ln=C("--line");CH.push(new Chart($("#"+id),{type,data:{labels:lb,datasets:sets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:sets.length>1,labels:{color:mu}}},scales:{x:{ticks:{color:mu},grid:{display:false},stacked:!!o.st},y:{beginAtZero:true,ticks:{color:mu},grid:{color:ln},stacked:!!o.st,...o.y}}}}))}
+function grp(g){const m={};[...S.m].sort((a,b)=>a.date<b.date?-1:1).forEach(x=>{let k=x.date;if(g=="w"){const d=new Date(x.date+"T00:00");d.setDate(d.getDate()-(d.getDay()+6)%7);k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}if(g=="m")k=x.date.slice(0,7);(m[k]=m[k]||[]).push(x)});return Object.keys(m).sort().slice(g=="d"?-14:-12).map(k=>({k,...agg(m[k])}))}
+
+/* Home */
+V.home=()=>{const a=agg(S.m),A=ms();return `<div class="card"><div style="display:flex;gap:14px;align-items:center"><div class="av">${esc((S.p.name[0]||"?").toUpperCase())}</div><div style="flex:1"><b style="font-size:20px">${esc(S.p.name)}</b> <small class="mu">${esc(S.p.tag)}</small><br><small class="mu">${esc(S.p.fav)} · ${rank(a.score)} tier</small></div><div style="text-align:right"><small class="mu">Score</small><br><b style="font-size:32px;color:var(--g)" data-v="${a.score}">0</b></div></div></div>
+<div class="grid">${st("Matches played",a.n)}${st("Total kills",a.k)}${st("Headshot rate",a.hp,1,"%")}${st("K/D ratio",a.kd,2)}${st("Win rate",a.wr,1,"%")}${st("Average damage",a.ad)}</div>
+<div class="card" style="margin-top:12px"><h2>Recent performance</h2>${A.length?`<div class="bars">${A.slice(0,10).reverse().map((x,i)=>`<i title="${x.date}" style="height:${agg([x]).score}%;background:var(--${x.result=="Win"?"g":"r"});animation-delay:${i*50}ms"></i>`).join("")}</div><small class="mu">Last 10 matches. Bar height is match score; green is a win, red a loss.</small>`:`<small class="mu">No matches yet. Log your first one.</small>`}</div>
+<div class="card"><h2>Latest matches</h2>${A.slice(0,5).map(x=>mrow(x)).join("")||`<button class="btn" onclick="go('log')">Log a match</button>`}</div>`};
+
+/* Log */
+V.log=()=>{const g=[...new Set(S.m.map(x=>x.game).concat(["Free Fire","Valorant","COD Mobile","PUBG Mobile","Apex Legends"]))];
+const n=(i,l)=>`<div><label>${l}</label><input id="${i}" type="number" min="0" step="1" inputmode="numeric" oninput="pv()"></div>`;
+return `<div class="card"><h2>Log a match</h2><form class="f" onsubmit="return addM(event)" novalidate>
+<div><label>Game</label><input id="f_g" list="dl_g" value="Free Fire" maxlength="40"><datalist id="dl_g">${g.map(x=>`<option value="${esc(x)}">`).join("")}</datalist></div>
+<div><label>Match type</label><select id="f_t">${["Ranked","Casual","Clash Squad","Battle Royale","Custom","Other"].map(x=>`<option>${x}</option>`).join("")}</select></div>
+${n("f_k","Kills")}${n("f_d","Deaths")}${n("f_h","Headshots")}${n("f_m","Damage")}
+<div><label>Result</label><select id="f_r"><option>Win</option><option>Loss</option></select></div>
+<div><label>Date</label><input id="f_dt" type="date" max="${TD()}" value="${TD()}"></div>
+<div class="w mu" id="pvw">K/D and headshot rate preview as you type.</div><div class="w err" id="er"></div>
+<div class="w"><button class="btn" style="width:100%">Save match</button></div></form></div>`};
+function pv(){const k=+$("#f_k").value,d=+$("#f_d").value,h=+$("#f_h").value;$("#pvw").textContent=`K/D ${f2(k/Math.max(d,1))} · Headshot rate ${k?Math.round(h/k*100):0}%`}
+function addM(e){e.preventDefault();const n=i=>{const v=$("#"+i).value.trim();return v===""?NaN:+v};
+const o={id:uid(),game:$("#f_g").value.trim(),type:$("#f_t").value,kills:n("f_k"),deaths:n("f_d"),hs:n("f_h"),dmg:n("f_m"),result:$("#f_r").value,date:$("#f_dt").value},er=[];
+if(!o.game)er.push("Game name is required.");
+[["kills","Kills"],["deaths","Deaths"],["hs","Headshots"],["dmg","Damage"]].forEach(([k,l])=>{if(!Number.isInteger(o[k])||o[k]<0)er.push(l+" must be a whole number, 0 or more.")});
+if(!er.length){if(o.hs>o.kills)er.push("Headshots cannot exceed kills.");if(o.kills>150||o.deaths>150)er.push("Kills and deaths must be 150 or less.");if(o.dmg>50000)er.push("Damage must be 50,000 or less.")}
+if(!o.date||o.date>TD())er.push("Choose a valid date, not in the future.");
+if(er.length){$("#er").innerHTML=er.map(esc).join("<br>");return false}
+S.m.push(o);save();toast("Match saved");go("home");return false}
+
+/* Stats */
+let gp="d";const sg=k=>{gp=k;draw()};
+V.stats=()=>{const a=agg(S.m);return `<div class="seg">${[["d","Daily"],["w","Weekly"],["m","Monthly"]].map(([k,l])=>`<button class="${gp==k?"on":""}" onclick="sg('${k}')">${l}</button>`).join("")}</div>
+${[["c1","Performance score"],["c2","Headshot accuracy %"],["c3","Kills per match"],["c4","Win and loss · "+a.w+"W "+a.l+"L overall"]].map(([i,t])=>`<div class="card"><h2>${t}</h2><div class="cv"><canvas id="${i}"></canvas></div></div>`).join("")}`};
+P.stats=()=>{if(!window.Chart)return;const R=grp(gp),lb=R.map(x=>(gp=="w"?"W ":"")+x.k.slice(gp=="m"?2:5)),c=C("--g"),b=C("--b"),r=C("--r");
+mk("c1","line",lb,[{label:"Score",data:R.map(x=>x.score),borderColor:c,backgroundColor:c+"22",fill:true,tension:.35}],{y:{max:100}});
+mk("c2","line",lb,[{label:"Headshot %",data:R.map(x=>+x.hp.toFixed(1)),borderColor:b,tension:.35}],{y:{max:100}});
+mk("c3","bar",lb,[{label:"Kills per match",data:R.map(x=>+x.ak.toFixed(1)),backgroundColor:b,borderRadius:5}]);
+mk("c4","bar",lb,[{label:"Wins",data:R.map(x=>x.w),backgroundColor:c,borderRadius:4},{label:"Losses",data:R.map(x=>x.l),backgroundColor:r,borderRadius:4}],{st:1})};
+
+/* Improve */
+const HT=["Keep your crosshair at head height while moving so you only adjust horizontally.","Pre-aim common angles instead of chasing targets across the screen.","Lower sensitivity a little if you overshoot; raise it if you cannot turn fast enough.","Fire in short controlled bursts and reset your aim between bursts.","Warm up for 10 minutes in training before every ranked session."];
+const AX=[["Target flicks, 5 min","Snap onto a bot head, release, repeat. Focus on landing the first shot."],["Tracking, 5 min","Follow a strafing target with your crosshair on its head."],["Micro-adjustments, 3 min","Make small corrections on distant targets to build precision."],["Spray control, 5 min","Hold fire on a wall, learn the pattern, then counter it."],["Corner reactions, 5 min","Turn corners and shoot instantly. Note your hit time."]];
+const CP=["Land 20 headshots in training","Win 2 matches","Finish a match with a K/D of 2.0 or better","Do 10 minutes of aim warm-up before ranked","Get 5+ kills in 3 matches","Keep your headshot rate above 35% today","Play 3 matches without dropping below 1.0 K/D","Review one loss and note 2 mistakes"];
+const tc=(i,v)=>{S.ch[TD()+i]=v;save();draw()};
+V.improve=()=>{const A=ms(),a=agg(S.m),r=agg(A.slice(0,10)),p=agg(A.slice(10,20)),gs={},w=[],s=[];
+S.m.forEach(x=>(gs[x.game]=gs[x.game]||[]).push(x));const G=Object.entries(gs).filter(([,v])=>v.length>=3).map(([k,v])=>[k,agg(v)]).sort((x,y)=>y[1].kd-x[1].kd);
+if(a.n){if(a.hp<35)w.push(["Headshot rate "+f0(a.hp)+"%","Below the 35% benchmark. Keep your crosshair at head height and drill flicks daily."]);
+if(a.kd<1.2)w.push(["K/D "+f2(a.kd),"You are dying often. Hold angles, avoid solo pushes and reposition after every kill."]);
+if(a.wr<50)w.push(["Win rate "+f0(a.wr)+"%","Play for the objective and stay with your squad. Kills only matter if the team wins."]);
+if(a.ad<900)w.push(["Average damage "+f0(a.ad),"Take fights earlier and keep pressure on enemies instead of waiting."]);
+if(p.n>=3&&r.score<p.score-3)w.push(["Recent form is dipping","Score is "+r.score+" over your last 10 matches, down from "+p.score+". Take a break, warm up, and review a loss."])}
+if(G.length>1)s.push(`Best game: ${esc(G[0][0])} (K/D ${f2(G[0][1].kd)}). Weakest: ${esc(G[G.length-1][0])} (K/D ${f2(G[G.length-1][1].kd)}). Spend extra practice there.`);
+if(p.n>=3)s.push(r.score>=p.score?`Trending up: score ${r.score} over your last 10 matches vs ${p.score} before. Keep your routine.`:`Trending down: score ${r.score} over your last 10 matches vs ${p.score} before. Shorten sessions and warm up first.`);
+const W=agg(S.m.filter(x=>x.result=="Win")),L=agg(S.m.filter(x=>x.result=="Loss"));if(W.n&&L.n)s.push(`You average ${W.ak.toFixed(1)} kills in wins and ${L.ak.toFixed(1)} in losses.`);
+if(!s.length)s.push("Log more matches to unlock personal suggestions.");
+const d0=Math.floor(Date.now()/864e5),dc=[0,1,2].map(i=>CP[(d0+i*3)%8]);
+return `<div class="card"><h2>Performance weaknesses</h2>${w.length?w.map(([t,d])=>`<div class="row blk"><b style="color:var(--r)">${t}</b><br><small>${d}</small></div>`).join(""):"<small class='mu'>No major weaknesses found. Raise your targets.</small>"}</div>
+<div class="card"><h2>Suggestions from your match history</h2>${s.map(x=>`<div class="row blk">${x}</div>`).join("")}</div>
+<div class="card"><h2>Daily challenges · ${dc.filter((_,i)=>S.ch[TD()+i]).length} of 3 done</h2>${dc.map((c,i)=>`<label class="row" style="cursor:pointer;color:var(--tx);font-size:14px;margin:0"><span>${c}</span><input type="checkbox" ${S.ch[TD()+i]?"checked":""} onchange="tc(${i},this.checked)"></label>`).join("")}</div>
+<div class="card"><h2>Headshot tips</h2>${HT.map(x=>`<div class="row blk">${x}</div>`).join("")}</div>
+<div class="card"><h2>Aim training exercises</h2>${AX.map(([t,d])=>`<div class="row blk"><b>${t}</b><br><small>${d}</small></div>`).join("")}</div>`};
+
+/* Free Fire */
+let ft="one";const sf=k=>{ft=k;draw()};
+V.freefire=()=>`<div class="card" style="border-color:var(--g)"><h2 style="color:var(--g);margin:0 0 4px">Free Fire mode</h2><small class="mu">Manual tracking only. GamerStats is not affiliated with Garena and does not import official Free Fire account stats.</small></div>
+<div class="seg">${[["one","One-tap"],["drag","Drag"],["sens","Sensitivity"],["hud","HUD"],["prog","Progress"]].map(([k,l])=>`<button class="${ft==k?"on":""}" onclick="sf('${k}')">${l}</button>`).join("")}</div>${FF[ft]()}`;
+const trn=(k,t,tip)=>{const a=[...S[k]].sort((x,y)=>y.date<x.date?-1:y.date>x.date?1:0),q=x=>Math.round(x.h/x.n*100),l5=a.slice(0,5),ac=l5.length?sum(l5,x=>x.h)/sum(l5,x=>x.n)*100:0;
+return `<div class="grid">${st("Last 5 accuracy",ac,1,"%")}${st("Best session",a.length?Math.max(...a.map(q)):0,0,"%")}${st("Sessions",a.length)}</div>
+<div class="card" style="margin-top:12px"><h2>${t}: log a session</h2><small class="mu">${tip}</small><form class="f" style="margin-top:10px" onsubmit="return addT(event,'${k}')" novalidate>
+<div><label>Date</label><input id="t_d" type="date" max="${TD()}" value="${TD()}"></div><div><label>Attempts</label><input id="t_n" type="number" min="1" value="40"></div>
+<div><label>Headshots landed</label><input id="t_h" type="number" min="0"></div><div><label>Note (optional)</label><input id="t_o" maxlength="80"></div>
+<div class="w err" id="er"></div><div class="w"><button class="btn" style="width:100%">Save session</button></div></form></div>
+<div class="card"><h2>Accuracy trend</h2><div class="bars">${a.slice(0,12).reverse().map((x,i)=>`<i title="${x.date}: ${q(x)}%" style="height:${q(x)}%;background:var(--${k=="one"?"g":"b"});animation-delay:${i*40}ms"></i>`).join("")}</div></div>
+<div class="card"><h2>Recent sessions</h2>${a.slice(0,8).map(x=>`<div class="row"><div><b>${q(x)}%</b> <small>${x.h} of ${x.n} · ${x.date}${x.note?" · "+esc(x.note):""}</small></div><button class="btn o" style="padding:4px 9px" onclick="del('${k}','${x.id}',this)">✕</button></div>`).join("")||"<small class='mu'>No sessions yet.</small>"}</div>`};
+FF.one=()=>trn("one","One-tap headshot trainer","Swipe up from the body to the head in one smooth motion and release as the crosshair reaches the head.");
+FF.drag=()=>trn("drag","Drag headshot trainer","Drag in a straight line and start slightly below the head so the crosshair settles on target.");
+function addT(e,k){e.preventDefault();const n=+$("#t_n").value,h=+$("#t_h").value,d=$("#t_d").value,er=[];
+if(!Number.isInteger(n)||n<1||n>2000)er.push("Attempts must be a whole number from 1 to 2000.");if(!Number.isInteger(h)||h<0||h>n)er.push("Headshots must be a whole number from 0 up to your attempts.");if(!d||d>TD())er.push("Choose a valid date, not in the future.");
+if(er.length){$("#er").innerHTML=er.join("<br>");return false}
+S[k].push({id:uid(),date:d,n,h,note:$("#t_o").value.slice(0,80)});save();toast("Session saved");draw();return false}
+function nb(o){$$("[data-k]").forEach(e=>S[o][e.dataset.k]=e.value);S[o].saved=new Date().toLocaleString();save();toast("Notebook saved");draw()}
+FF.sens=()=>`<div class="card"><h2>Sensitivity notebook</h2><div class="f">${[["dev","Device"],["dpi","Screen DPI"],["gen","General"],["rd","Red dot"],["s2","2x scope"],["s4","4x scope"],["awm","AWM scope"],["fl","Free look"]].map(([k,l])=>`<div><label>${l}</label><input data-k="${k}" maxlength="30" value="${esc(S.sens[k]||"")}"></div>`).join("")}<div class="w"><label>Notes</label><textarea data-k="notes" rows="4" maxlength="500">${esc(S.sens.notes||"")}</textarea></div><div class="w"><button class="btn" onclick="nb('sens')">Save settings</button> <small class="mu">${S.sens.saved?"Saved "+esc(S.sens.saved):""}</small></div></div></div>`;
+FF.hud=()=>`<div class="card"><h2>Custom HUD notebook</h2><div class="f"><div><label>Fingers used</label><select data-k="fing">${["2","3","4","5","6"].map(x=>`<option ${S.hud.fing==x?"selected":""}>${x}</option>`).join("")}</select></div><div><label>Fire button size %</label><input data-k="fsz" maxlength="4" value="${esc(S.hud.fsz||"")}"></div><div><label>HUD opacity %</label><input data-k="op" maxlength="4" value="${esc(S.hud.op||"")}"></div><div><label>Layout name</label><input data-k="nm" maxlength="30" value="${esc(S.hud.nm||"")}"></div><div class="w"><label>Layout notes</label><textarea data-k="notes" rows="4" maxlength="500">${esc(S.hud.notes||"")}</textarea></div><div class="w"><button class="btn" onclick="nb('hud')">Save HUD</button> <small class="mu">${S.hud.saved?"Saved "+esc(S.hud.saved):""}</small></div></div></div>`;
+const setGoal=v=>{v=+v;if(v>=1&&v<=100){S.goal=v;save();draw()}else toast("Goal must be 1 to 100")};
+FF.prog=()=>{const l=k=>{const a=[...S[k]].sort((x,y)=>y.date<x.date?-1:1).slice(0,5);return a.length?sum(a,x=>x.h)/sum(a,x=>x.n)*100:0},ao=l("one"),ad=l("drag"),fm=agg(S.m.filter(x=>x.game=="Free Fire")),days=new Set(S.one.concat(S.drag).map(x=>x.date));let sk=0;for(let i=0;i<400;i++){if(days.has(ds(i)))sk++;else if(i>0)break}
+const bar=(t,v)=>`<small>${t}: ${f0(v)}% of ${S.goal}% goal</small><div class="prog"><i style="width:${Math.min(100,v/S.goal*100)}%"></i></div>`;
+return `<div class="card"><h2>Training progress</h2><div style="max-width:220px"><label>Headshot accuracy goal %</label><input type="number" min="1" max="100" value="${S.goal}" onchange="setGoal(this.value)"></div><br>${bar("One-tap (last 5)",ao)}${bar("Drag (last 5)",ad)}<small class="mu">Training streak: ${sk} day${sk==1?"":"s"} · ${S.one.length+S.drag.length} sessions logged</small></div>
+<div class="card"><h2>Accuracy over time</h2><div class="cv"><canvas id="c5"></canvas></div></div>
+<div class="grid">${st("Free Fire matches",fm.n)}${st("Free Fire K/D",fm.kd,2)}${st("Free Fire win rate",fm.wr,1,"%")}</div>`};
+P.freefire=()=>{if(ft!="prog"||!window.Chart)return;const U=[...new Set(S.one.concat(S.drag).map(x=>x.date))].sort().slice(-20),ln=(k,l,c)=>({label:l,borderColor:c,tension:.35,spanGaps:true,data:U.map(d=>{const a=S[k].filter(x=>x.date==d);return a.length?+(sum(a,x=>x.h)/sum(a,x=>x.n)*100).toFixed(1):null})});
+mk("c5","line",U.map(x=>x.slice(5)),[ln("one","One-tap",C("--g")),ln("drag","Drag",C("--b")),{label:"Goal",data:U.map(()=>S.goal),borderColor:C("--r"),borderDash:[6,4],pointRadius:0}],{y:{max:100}})};
+
+/* Profile */
+let hl=15;
+V.profile=()=>{const a=agg(S.m),A=ms();let cur=0,best=0;[...A].reverse().forEach(x=>{cur=x.result=="Win"?cur+1:0;best=Math.max(best,cur)});
+const mx=(f,fl)=>{const c=fl?S.m.filter(fl):S.m;return c.length?c.reduce((p,x)=>f(x)>f(p)?x:p):null},sx=x=>agg([x]).score;
+const pb=[["Most kills",mx(x=>x.kills),x=>x.kills],["Best K/D",mx(kd1),x=>f2(kd1(x))],["Most damage",mx(x=>x.dmg),x=>x.dmg],["Best headshot rate",mx(x=>x.hs/x.kills,x=>x.kills>=3),x=>f0(x.hs/x.kills*100)+"%"],["Best match score",mx(sx),sx]];
+const tn=S.one.length+S.drag.length,B=[["🎯","First Blood","Log a match",a.n>=1],["🏅","Veteran","25 matches",a.n>=25],["🔫","Sharpshooter","40%+ headshots, 10+ matches",a.n>=10&&a.hp>=40],["💀","Dominator","K/D 2.0+, 10+ matches",a.n>=10&&a.kd>=2],["🔥","Hot Streak","5 wins in a row",best>=5],["💥","Ace","15+ kills in a match",S.m.some(x=>x.kills>=15)],["🏆","Champion","60%+ win rate, 10+ matches",a.n>=10&&a.wr>=60],["🧠","Aim Student","10 training sessions",tn>=10]];
+return `<div class="card"><h2>Player profile</h2><div class="f"><div><label>Username</label><input id="p_n" maxlength="20" value="${esc(S.p.name)}"></div><div><label>Tag</label><input id="p_t" maxlength="10" value="${esc(S.p.tag)}"></div><div class="w"><label>Main game</label><input id="p_f" maxlength="30" value="${esc(S.p.fav)}"></div><div class="w err" id="er"></div><div class="w"><button class="btn" onclick="svp()">Save profile</button></div></div></div>
+<div class="card"><h2>Personal bests</h2>${pb.map(([l,m,f])=>`<div class="row"><span>${l}</span><span>${m?`<b style="color:var(--g)">${f(m)}</b> <small>${esc(m.game)} · ${m.date}</small>`:"–"}</span></div>`).join("")}<div class="row"><span>Longest win streak</span><b style="color:var(--g)">${best}</b></div></div>
+<div class="card"><h2>Achievement badges · ${B.filter(x=>x[3]).length} of ${B.length}</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">${B.map(([i,n,d,o])=>`<div class="bd ${o?"":"off"}"><s>${i}</s><b>${n}</b><br><small class="mu">${d}</small></div>`).join("")}</div></div>
+<div class="card"><h2>Match history · ${A.length}</h2>${A.slice(0,hl).map(x=>mrow(x,1)).join("")||"<small class='mu'>No matches yet.</small>"}${A.length>hl?`<br><button class="btn o" onclick="hl+=20;draw()">Show more</button>`:""}</div>
+<div class="card"><h2>Data and backup</h2><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px"><button class="btn" onclick="ex('j')">Export JSON</button><button class="btn" onclick="ex('c')">Export CSV</button><button class="btn o" onclick="imp()">Import JSON</button><button class="btn o" onclick="ar(this,()=>rs(1))">Reset demo data</button><button class="btn o" onclick="ar(this,()=>rs(0))">Clear all</button></div><textarea id="xb" rows="4" placeholder="Exports appear here. Paste exported JSON and tap Import to restore."></textarea></div>
+<div class="card"><h2>Setup and run</h2><small class="mu">No build step. Save this page as index.html and open it in any browser, or host it as a static file. Match and training data is stored in your browser (localStorage), so use Export JSON to back it up or move devices.</small></div>`};
+function svp(){const n=$("#p_n").value.trim();if(n.length<2){$("#er").textContent="Username must be 2 to 20 characters.";return}S.p={name:n,tag:$("#p_t").value.trim(),fav:$("#p_f").value.trim()};save();toast("Profile saved");draw()}
+function ex(t){const s=t=="j"?JSON.stringify(S,null,1):"date,game,type,kills,deaths,headshots,damage,result,kd,headshot_pct\n"+ms().map(x=>[x.date,'"'+x.game.replace(/"/g,'""')+'"','"'+x.type+'"',x.kills,x.deaths,x.hs,x.dmg,x.result,f2(kd1(x)),x.kills?(x.hs/x.kills*100).toFixed(1):0].join(",")).join("\n");
+$("#xb").value=s;try{navigator.clipboard.writeText(s).catch(()=>{})}catch(e){}try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([s],{type:t=="j"?"application/json":"text/csv"}));a.download="gamerstats."+(t=="j"?"json":"csv");a.click()}catch(e){}toast("Export ready. Copy it from the box.")}
+function imp(){try{const o=JSON.parse($("#xb").value);if(!Array.isArray(o.m))throw 0;S=Object.assign(fresh(0),o);save();toast("Data imported");draw()}catch(e){toast("Paste exported JSON in the box first")}}
+const rs=d=>{S=fresh(d,S.p);save();toast(d?"Demo data restored":"All data cleared");draw()};
+
+/* Shell */
+const NAV=[["home","Home","⌂"],["log","Log","＋"],["stats","Stats","▥"],["improve","Improve","⚡"],["freefire","Free Fire","🔥"],["profile","Profile","☺"]];
+let tab=(location.hash||"#home").slice(1);
+function draw(a){CH.forEach(c=>c.destroy());CH=[];const v=V[tab]?tab:"home";$("#ap").className=a?"an":"";$("#ap").innerHTML=V[v]();$("#nv").innerHTML=NAV.map(([k,l,i])=>`<button class="${k==v?"on":""}" onclick="go('${k}')"><span class="i">${i}</span>${l}</button>`).join("");cu();P[v]&&P[v]()}
+function go(t){tab=t;try{location.hash=t}catch(e){}draw(1);scrollTo(0,0)}
+addEventListener("hashchange",()=>{const t=location.hash.slice(1)||"home";if(t!=tab){tab=t;draw(1)}});
+draw(1);
+</script></body></html>
